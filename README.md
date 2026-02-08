@@ -1,74 +1,140 @@
-# Student Submission Checklist (Lab 3)
+# Lab 3: Contextual Bandit for News Recommendation
 
-Before submitting your Lab 3 assignment, ensure that **all items below are completed**. Submissions that do not follow this checklist may receive partial or no credit.
+**Name:** Aryan Gosain  
+**Roll Number:** U20230108
 
----
-
-## 🔹 Repository and Branching
-
-* [ ] The repository is correctly created on GitHub.
-* [ ] All work is committed to **exactly one branch** named
-  `firstname_U20230xxx`.
-* [ ] **No work is pushed to `master`**.
-* [ ] The correct branch is pushed to GitHub.
+> **Submission Scope:** This submission covers Sections 5.1 and 5.2 – Data Pre-processing and User Classification (Context Detection).
 
 ---
 
-## 🔹 Notebook Submission
+## Overview
 
-* [ ] Exactly **one** Jupyter Notebook (`.ipynb`) is submitted.
-* [ ] The notebook is placed at the **root of the repository**.
-* [ ] The notebook is named **exactly**:
-  `lab3_results_<roll_number>.ipynb`.
-* [ ] The notebook runs **top to bottom without errors**.
-* [ ] All outputs (plots, tables, metrics) are visible in the notebook.
+This project implements a **Contextual Bandit** system for personalized news article recommendations. This submission focuses on the foundational components: preprocessing user data and building a classifier to detect user contexts.
 
----
-
-## 🔹 Sampler Usage
-
-* [ ] The provided `sampler` package is used **without modification**.
-* [ ] The sampler is initialized using your correct roll number `i`.
-* [ ] Rewards are obtained **only** via `sampler.sample(j)`.
-* [ ] No hard-coded or synthetic rewards are used.
+### Problem Statement
+Given user behavioral data, the goal is to:
+1. **Preprocess the data** – Handle missing values, encode features, and prepare for modeling
+2. **Classify users** into one of three categories (User1, User2, User3) based on their features
 
 ---
 
-## 🔹 Contextual Bandit Implementation
+## How to Run
 
-* [ ] User category is treated as the **context**.
-* [ ] News category is treated as the **bandit arm**.
-* [ ] The arm index mapping follows the specification in the lab handout.
-* [ ] All three algorithms are implemented:
+### Prerequisites
+- Python 3.10+
+- Jupyter Notebook or JupyterLab
 
-  * Epsilon-Greedy
-  * Upper Confidence Bound (UCB)
-  * SoftMax
+### Installation
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd lab3-contextual-bandit
+
+# Create and activate virtual environment
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install pandas numpy scikit-learn matplotlib
+```
+
+### Running the Notebook
+
+```bash
+# Activate the virtual environment
+source venv/bin/activate
+
+# Launch Jupyter
+jupyter notebook lab3_results_U20230108.ipynb
+```
+
+Run all cells from top to bottom to reproduce the results.
 
 ---
 
-## 🔹 Evaluation and Plots
+## Approach
 
-* [ ] Classification accuracy is reported on `test_users.csv`.
-* [ ] Reinforcement learning simulation is run for **T = 10,000 steps**.
-* [ ] Plots include:
+### 5.1 Data Pre-processing
 
-  * Average Reward vs. Time (per context)
-  * Hyperparameter comparison plots
-* [ ] All plots have labeled axes, legends, and titles.
+**Datasets Used:**
+- `train_users.csv` – 2,000 labeled user records with 33 features
+- `test_users.csv` – 2,000 unlabeled user records with 32 features
+- `news_articles.csv` – 209,527 news articles with 6 features
+
+**Pre-processing Steps:**
+1. **Duplicate Removal** – Removed duplicate records from all datasets
+2. **Missing Value Handling** – Filled missing values in the `age` column (698 missing) using median imputation
+3. **Feature Encoding:**
+   - **Numeric features (28):** Standardized using `StandardScaler`
+   - **Categorical features (3):** One-hot encoded (`browser_version`, `region_code`, `subscriber`)
+4. **Final Feature Matrix:** 130 features after encoding
+
+### 5.2 User Classification (Context Detection)
+
+A **Logistic Regression** classifier was trained to predict user categories:
+
+| Configuration | Value |
+|--------------|-------|
+| Train/Validation Split | 80/20 |
+| Stratification | Yes (maintained class proportions) |
+| Max Iterations | 2000 |
+| Random State | 42 |
 
 ---
 
-## 🔹 README.md Requirements
+## Results
 
-* [ ] README.md is present at the repository root.
-* [ ] It explains the overall approach and design decisions.
-* [ ] It summarizes key results and observations.
-* [ ] It includes clear instructions to reproduce the experiments.
-* [ ] All external references (if any) are properly cited.
+### Classification Performance on Validation Set
+
+| User Category | Precision | Recall | F1-Score | Support |
+|--------------|-----------|--------|----------|---------|
+| user_1 | 0.8378 | 0.8732 | 0.8552 | 142 |
+| user_2 | 1.0000 | 0.8169 | 0.8992 | 142 |
+| user_3 | 0.8529 | 1.0000 | 0.9206 | 116 |
+| **Overall Accuracy** | | | **0.8900** | 400 |
+
+### Test Set Context Distribution
+
+After retraining on the full training set, the classifier predicted the following distribution on `test_users.csv`:
+
+| Context | User Category | Count |
+|---------|--------------|-------|
+| 0 | User1 | 609 |
+| 1 | User2 | 666 |
+| 2 | User3 | 725 |
 
 ---
 
-## Important Note
+## Insights
 
-> Submissions that do not follow the specified branch name, notebook naming convention, or sampler usage rules may not be evaluated.
+1. **High Classification Accuracy:** Logistic Regression achieved **89% accuracy** on the validation set, so it shows that user categories are well-separable based on behavioral features.
+
+2. **Class-wise Performance:**
+   - **User2** has perfect precision (1.0) but lower recall (0.82) – the model is conservative in predicting this class
+   - **User3** has perfect recall (1.0) – all User3 instances are correctly identified
+   - **User1** shows balanced precision-recall trade-off
+
+3. **Missing Data Handling:** The `age` feature had ~35% missing values; median imputation was chosen over mean to be robust against potential outliers.
+
+4. **Feature Expansion:** One-hot encoding expanded the feature space from 31 to 130 dimensions, capturing categorical nuances effectively.
+
+---
+
+## Repository Structure
+
+```
+lab3-contextual-bandit/
+├── README.md                          # This file
+├── lab3_results_U20230108.ipynb       # Main notebook with all code and results
+├── assignment.pdf                     # Lab assignment specification
+├── data/
+│   ├── train_users.csv                # Labeled training user data
+│   ├── test_users.csv                 # Unlabeled test user data
+│   └── news_articles.csv              # News articles dataset
+└── venv/                              # Python virtual environment
+```
+
+---
+
+*Last Updated: February 2026*
