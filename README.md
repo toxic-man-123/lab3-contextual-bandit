@@ -193,7 +193,7 @@ This chart confirms that for ε-greedy, a small epsilon is preferable. For UCB, 
 
 ### Hyperparameter Sensitivity
 
-- **Epsilon (ε-Greedy):** A tiny epsilon (0.01) definitely gave the best final rewards because it spent most of its time exploiting the winner. The big epsilon (0.3) just hurt the long-term performance—it's like it never fully stopped guessing.
+- **Epsilon (ε-Greedy):** A tiny epsilon (0.01) definitely gave the best final rewards because it spent most of its time exploiting the winner. The big epsilon (0.3) just hurt the long-term performance, so it's like it never fully stopped guessing.
 
 - **C (UCB):** The C parameter basically limits how "curious" the algorithm is. A small C (0.5) made it exploit pretty quickly, while a larger C (2.0) made it explore a lot more before settling. I found C=1.0 to be a pretty good balance for this specific problem.
 
@@ -201,7 +201,7 @@ This chart confirms that for ε-greedy, a small epsilon is preferable. For UCB, 
 
 1. It was cool to see that all three algorithms actually figured out the best news category for each user type.
 2. I think UCB is probably the most reliable overall because it stops exploring so much once it's confident, unlike epsilon-greedy which keeps making random choices.
-3. The classifier got around 89% accuracy, which seems good enough—even if it's wrong sometimes, the bandit algorithm will still try to find the best article for that "wrong" context.
+3. The classifier got around 89% accuracy, which seems good enough, even if it's wrong sometimes, the bandit algorithm will still try to find the best article for that "wrong" context.
 4. Building the whole pipeline from classification to bandit selection to article recommendation was a great way to see how these parts fit together in a real system.
 
 ---
